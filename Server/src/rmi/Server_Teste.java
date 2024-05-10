@@ -13,6 +13,8 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.time.format.DateTimeFormatter;
+import javax.crypto.Cipher;
+import javax.swing.text.html.HTML;
 
 public class Server_Teste extends UnicastRemoteObject implements ChessInterface {
 
@@ -21,6 +23,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     ArrayList<ClientInterface> pedidos = new ArrayList<>();
 
     private String[] letras = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    
     private String[][] board = {
         {"BR1", "BH1", "BB1", "BQ", "BK", "BB2", "BH2", "BR2"},
         {"BP1", "BP2", "BP3", "BP4", "BP5", "BP6", "BP7", "BP8"},
@@ -160,9 +163,9 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     }
 
     public synchronized void sendMessage(String message) throws RemoteException {
-        // para todos os utilizadores do array de chaves
-        // envia a mensagem com o método log, por exemplo
-        // por callback
+        for(int i = 0; i < users.size(); i++){
+            users.get(i).recebeMensagem(message);
+        }
     }
 
     public synchronized void expetadorParaJogador(ClientInterface ci) throws RemoteException {

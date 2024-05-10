@@ -1,4 +1,3 @@
-
 package rmi;
 
 import java.awt.*;
@@ -6,13 +5,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import javax.swing.*;
 
-
 public class ChessGUI extends JFrame {
-    private ClientInterface ci;
 
-    
+    public ClientInterface ci;
+    public Client cliente;
+
     private SquarePanel[][] board = new SquarePanel[8][8];
 
     private JPanel chessPanel = new JPanel();
@@ -37,19 +37,22 @@ public class ChessGUI extends JFrame {
     JButton sendMessage = new JButton("send");
     JTextArea textArea = new JTextArea(10, 30);
     JScrollPane chat = new JScrollPane(textArea);
-    
+
     /* PEDIR PARA SER EXPETADOR */
-    
-    /* PEDIR PARA SER JOGADOR */
+ /* PEDIR PARA SER JOGADOR */
 
-    /* PECAS DE FORA */
-    /* Interface */
-    ChessInterface chess; 
-    
-    public ChessGUI(ClientInterface ci) {
+ /* PECAS DE FORA */
+ /* Interface */
+    ChessInterface chess;
+
+    public ChessGUI(ClientInterface ci, Client cliente) {
+
+        atualizaChat thread = new atualizaChat(cliente);
+        thread.start();
+
         this.ci = ci;
-        setSize(100, 400);
 
+        setSize(100, 400);
         setLayout(new BorderLayout());
 
         chessPanel.setLayout(new GridLayout(8, 8));
@@ -133,30 +136,60 @@ public class ChessGUI extends JFrame {
 
         startCon.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try{
-                Registry reg = LocateRegistry.getRegistry(serverIP.getText(), Integer.parseInt(serverPort.getText()));
-                chess = (ChessInterface) reg.lookup("Server");
+                try {
+                    Registry reg = LocateRegistry.getRegistry(serverIP.getText(), Integer.parseInt(serverPort.getText()));
+                    chess = (ChessInterface) reg.lookup("Server");
+                    chess.login(ci);
                     System.out.println("OK");
-                }catch(Exception eLogin){
-                    System.out.println(eLogin);}
+                } catch (Exception eLogin) {
+                    System.out.println(eLogin);
+                }
             }
-  
+
         });
 
         stopCon.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try{
+                try {
                     chess.logout(ci);
-                }catch(Exception eLogout){
-                    System.out.println(eLogout);}
+                } catch (Exception eLogout) {
+                    System.out.println(eLogout);
+                }
+            }
+        });
+
+        sendMessage.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    chess.sendMessage(inputChat.getText());
+                } catch (Exception eLogout) {
+                    System.out.println(eLogout);
+                }
             }
         });
 
     }
-    
 
     public void selected(int x, int y) {
         System.out.printf("mouse pressed at: %d - %d\n", x, y);
     }
 
+    public class atualizaChat extends Thread {
+
+        private Client cliente;
+
+        public atualizaChat(Client cliente) {
+            this.cliente = cliente;
+        }
+
+        public void run() {
+            while (true) {
+                if (this.cliente.getNova()) {
+                    String mensagem = this.cliente.getMensagens();
+                    textArea.append(mensagem);
+                }
+            }
+
+        }
+    }
 }
