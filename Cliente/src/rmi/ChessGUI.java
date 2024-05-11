@@ -137,7 +137,8 @@ public class ChessGUI extends JFrame {
         startCon.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Registry reg = LocateRegistry.getRegistry(serverIP.getText(), Integer.parseInt(serverPort.getText()));
+                    String ip = serverIP.getText();
+                    Registry reg = LocateRegistry.getRegistry(ip, Integer.parseInt(serverPort.getText()));
                     chess = (ChessInterface) reg.lookup("Server");
                     chess.login(ci);
                     System.out.println("OK");

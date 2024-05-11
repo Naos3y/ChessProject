@@ -4,6 +4,7 @@
  */
 package rmi;
 
+import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.rmi.*;
 import java.rmi.server.*;
@@ -13,6 +14,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
 import javax.crypto.Cipher;
 import javax.swing.text.html.HTML;
 
@@ -23,7 +25,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     ArrayList<ClientInterface> pedidos = new ArrayList<>();
 
     private String[] letras = {"a", "b", "c", "d", "e", "f", "g", "h"};
-    
+
     private String[][] board = {
         {"BR1", "BH1", "BB1", "BQ", "BK", "BB2", "BH2", "BR2"},
         {"BP1", "BP2", "BP3", "BP4", "BP5", "BP6", "BP7", "BP8"},
@@ -85,18 +87,17 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     }
 
     public synchronized void login(ClientInterface ci) throws RemoteException {
+        System.out.println(ci);
         users.add(ci);
         if (users.size() == 0 || users.size() == 1) {
             jogadores.add(ci);
         }
     }
-    
-    
+
     public synchronized void logout(ClientInterface ci) throws RemoteException {
         users.remove(ci);
-        
+
     }
-    
 
     public synchronized void jogada(String peca, String[] inicio, String[] fim, boolean tabToFora, boolean foraToTab) {
         int inicioA = Integer.parseInt(inicio[0]);
@@ -163,9 +164,16 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     }
 
     public synchronized void sendMessage(String message) throws RemoteException {
-        for(int i = 0; i < users.size(); i++){
-            users.get(i).recebeMensagem(message);
+        Iterator<ClientInterface> iterator = users.iterator();
+        while (iterator.hasNext()) {
+            ClientInterface user = iterator.next();
+            try {
+                user.recebeMensagem(message);
+            } catch (RemoteException e) {
+                iterator.remove();
+            }
         }
+
     }
 
     public synchronized void expetadorParaJogador(ClientInterface ci) throws RemoteException {
@@ -179,7 +187,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
                 try {
                     jogadores.add(pedidos.get(0));
                 } catch (Exception e) {
-                     System.out.println(e);
+                    System.out.println(e);
                 }
             }
         }
