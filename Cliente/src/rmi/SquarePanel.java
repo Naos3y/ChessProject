@@ -11,7 +11,8 @@ public class SquarePanel extends JPanel {
     private int row, column;
     private ChessGUI cg;
     private JLabel imageLabel;
-
+    private Piece piece;
+    
     private static Image pieceImage[][] = new Image[2][6];
     private static String imageFilename[][] = {
         {"wp.gif", "wn.gif", "wb.gif", "wr.gif", "wq.gif", "wk.gif"},
@@ -51,10 +52,12 @@ public class SquarePanel extends JPanel {
     }
 
     public void setPiece(int color, int type) {
+        piece = new Piece(color, type);
         imageLabel.setIcon(new ImageIcon(pieceImage[color][type]));
     }
 
     public void removePiece() {
+        piece = null;
         imageLabel.setIcon(null);
     }
 
@@ -71,7 +74,7 @@ public class SquarePanel extends JPanel {
         }
 
         public void mousePressed(MouseEvent e) {
-            cg.selected(row, column);
+            cg.selected(row, column, piece);
             setBorder(BorderFactory.createLineBorder(Color.RED, 2));
         }
 

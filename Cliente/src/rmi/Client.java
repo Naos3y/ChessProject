@@ -32,6 +32,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
                     ChessGUI mainFrame = new ChessGUI(client, client);
                     mainFrame.setSize(1000, 800);
                     mainFrame.setVisible(true);
+                    mainFrame.setResizable(false);
                 } catch (Exception e) {
                 }
 

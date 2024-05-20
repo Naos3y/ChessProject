@@ -20,9 +20,9 @@ import javax.swing.text.html.HTML;
 
 public class Server_Teste extends UnicastRemoteObject implements ChessInterface {
 
-    ArrayList<ClientInterface> users = new ArrayList<>();
-    ClientInterface[] jogadores = new ClientInterface[2];
-    ArrayList<ClientInterface> pedidos = new ArrayList<>();
+    public static ArrayList<ClientInterface> users = new ArrayList<>();
+    public static ClientInterface[] jogadores = new ClientInterface[2];
+    public static ArrayList<ClientInterface> pedidos = new ArrayList<>();
 
     private String[] letras = {"a", "b", "c", "d", "e", "f", "g", "h"};
 
@@ -54,6 +54,9 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             System.out.println("IP do servidor: " + InetAddress.getLocalHost().getHostAddress());
             System.out.println("Porto do servidor: " + porto);
             System.out.println("Servidor Iniciado!");
+
+            validaJogadoresEmEspera t1 = new validaJogadoresEmEspera();
+            t1.start();
 
         } catch (Exception e) {
             System.out.println(e);
@@ -98,15 +101,21 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     }
 
     public synchronized void logout(ClientInterface ci) throws RemoteException {
+
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).equals(ci)) {
                 users.remove(i);
-                for (int j = 0; j < 2; j++) {
-                    System.out.println(jogadores[j]);
-                    if (jogadores[j].equals(ci)) {
-                        jogadores[j] = null;
+                try {
+                    for (int j = 0; j < jogadores.length; j++) {
+                        System.out.println(jogadores[j]);
+                        if (jogadores[j].equals(ci)) {
+                            jogadores[j] = null;
+                        }
+                        System.out.println(jogadores[j]);
                     }
-                    System.out.println(jogadores[j]);
+
+                } catch (Exception e) {
+                    System.out.println(e);
                 }
             }
         }
@@ -202,7 +211,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     public synchronized void expetadorParaJogador(ClientInterface ci) throws RemoteException {
 
         for (int i = 0; i < pedidos.size(); i++) {
-            if (pedidos.get(i).equals(ci)){
+            if (pedidos.get(i).equals(ci)) {
                 return;
             }
         }
@@ -238,6 +247,36 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     public static String Scan(String aMensagem) {
         System.out.print(aMensagem);
         return (new Scanner(System.in)).nextLine();
+    }
+
+    public static class validaJogadoresEmEspera extends Thread {
+
+        public validaJogadoresEmEspera() {
+
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    for (int i = 0; i < jogadores.length; i++) {
+                        try {
+                            System.out.println(pedidos.get(0));
+                            jogadores[i].validar();
+                        } catch (Exception validarPedido) {
+                            System.out.println(pedidos.get(0));
+
+                            jogadores[i] = pedidos.get(0);
+                            pedidos.remove(0);
+                            return;
+                        }
+                    }
+                    Thread.sleep(5000);
+                } catch (Exception e) {
+
+                }
+            }
+
+        }
     }
 
 }

@@ -10,7 +10,6 @@ import javax.swing.*;
 
 public class ChessGUI extends JFrame {
 
-    public ClientInterface ci;
     public Client cliente;
     public String myName;
     public boolean JOGADOR = false;
@@ -47,12 +46,23 @@ public class ChessGUI extends JFrame {
 
  /* PECAS DE FORA */
  /* Interface */
-    ChessInterface chess;
+    public ChessInterface chess;
+    public ClientInterface ci;
+
+    /* PECAS */
+    private static final int PAWN = 0;
+    private static final int KNIGHT = 1;
+    private static final int BISHOP = 2;
+    private static final int ROOK = 3;
+    private static final int QUEEN = 4;
+    private static final int KING = 5;
 
     public ChessGUI(ClientInterface ci, Client cliente) {
 
-        atualizaChat thread = new atualizaChat(cliente);
-        thread.start();
+        atualizaChat t1 = new atualizaChat(cliente);
+        verificarJogador t2 = new verificarJogador();
+        t1.start();
+        t2.start();
         this.ci = ci;
 
         setSize(100, 400);
@@ -72,22 +82,32 @@ public class ChessGUI extends JFrame {
             }
         }
 
-        board[7][0].setPiece(0, 3);
-        board[7][1].setPiece(0, 1);
-        board[7][2].setPiece(0, 2);
-        board[7][3].setPiece(0, 4);
-        board[7][4].setPiece(0, 5);
-        board[6][0].setPiece(0, 0);
+        board[7][0].setPiece(0, ROOK);
+        board[7][1].setPiece(0, KNIGHT);
+        board[7][2].setPiece(0, BISHOP);
+        board[7][3].setPiece(0, QUEEN);
+        board[7][4].setPiece(0, KING);
+        board[7][5].setPiece(0, BISHOP);
+        board[7][6].setPiece(0, KNIGHT);
+        board[7][7].setPiece(0, ROOK);
 
-        board[0][0].setPiece(1, 3);
-        board[0][1].setPiece(1, 1);
-        board[0][2].setPiece(1, 2);
-        board[0][3].setPiece(1, 4);
-        board[0][4].setPiece(1, 5);
-        board[1][0].setPiece(1, 0);
+        for (int i = 0; i < 8; i++) {
+            board[6][i].setPiece(0, PAWN);
+        }
 
-        //board[7][3].removePiece();
-        //board[0][0].setBackColor(1);
+        board[0][0].setPiece(1, ROOK);
+        board[0][1].setPiece(1, KNIGHT);
+        board[0][2].setPiece(1, BISHOP);
+        board[0][3].setPiece(1, QUEEN);
+        board[0][4].setPiece(1, KING);
+        board[0][5].setPiece(1, BISHOP);
+        board[0][6].setPiece(1, KNIGHT);
+        board[0][7].setPiece(1, ROOK);
+
+        for (int i = 0; i < 8; i++) {
+            board[1][i].setPiece(1, PAWN);
+        }
+
         /* 
         Estado dos botoes
          */
@@ -98,6 +118,7 @@ public class ChessGUI extends JFrame {
         sendMessage.setEnabled(false);
         textArea.setEnabled(false);
         stopCon.setEnabled(false);
+        pedidoDeJogo.setEnabled(false);
 
         painelPrincipal.setLayout(new BorderLayout());
         painelPrincipal.add(chessPanel, BorderLayout.CENTER);
@@ -173,6 +194,8 @@ public class ChessGUI extends JFrame {
                         serverIP.setEnabled(false);
                         serverPort.setEnabled(false);
                         startCon.setEnabled(false);
+                        pedidoDeJogo.setEnabled(true);
+
                         if (JOGADOR) {
                             sendMessage.setEnabled(true);
                         }
@@ -209,9 +232,10 @@ public class ChessGUI extends JFrame {
                     sendMessage.setEnabled(false);
                     textArea.setEnabled(false);
                     stopCon.setEnabled(false);
+                    pedidoDeJogo.setEnabled(false);
 
                 } catch (Exception eLogout) {
-                    System.out.println(eLogout);
+                    System.out.println(eLogout+"AAA");
                 }
             }
         });
@@ -239,15 +263,6 @@ public class ChessGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     chess.expetadorParaJogador(ci);
-                    try {
-                        JOGADOR = chess.souJogador(ci);
-                    } catch (Exception e1) {
-                        System.out.println(e1);
-                    }
-                    if (JOGADOR) {
-                        System.out.println("OK");
-                        sendMessage.setEnabled(true);
-                    }
                 } catch (Exception eExparaJogador) {
                     System.out.println(eExparaJogador);
                 }
@@ -257,8 +272,12 @@ public class ChessGUI extends JFrame {
 
     }
 
-    public void selected(int x, int y) {
-        System.out.printf("mouse pressed at: %d - %d\n", x, y);
+    public void selected(int x, int y, Piece p) {
+        try {
+            System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
+        } catch (Exception e) {
+            System.out.println("mouse pressed at:" + x + " : " + y);
+        }
     }
 
     private int stringParaInt(String aMensagem) {
@@ -279,6 +298,28 @@ public class ChessGUI extends JFrame {
                 if (this.cliente.getNova()) {
                     String mensagem = this.cliente.getMensagens();
                     textArea.append(mensagem);
+                }
+            }
+
+        }
+    }
+
+    public class verificarJogador extends Thread {
+
+        public verificarJogador() {
+
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    JOGADOR = chess.souJogador(ci);
+                    System.out.println(ci);
+                    if (JOGADOR) {
+                        sendMessage.setEnabled(true);
+                    }
+                    Thread.sleep(5000);
+                } catch (Exception e1) {
                 }
             }
 
