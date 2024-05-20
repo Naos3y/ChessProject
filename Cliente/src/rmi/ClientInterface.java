@@ -12,4 +12,5 @@ import java.rmi.*;
  */
 public interface ClientInterface extends Remote {
    public void recebeMensagem(String msg) throws RemoteException;
+   public void validar() throws RemoteException;
 }

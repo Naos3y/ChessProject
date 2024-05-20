@@ -26,4 +26,6 @@ public interface ChessInterface extends Remote {
     public void expetadorParaJogador(ClientInterface ci) throws RemoteException;
 
     public void jogadorParaExpetador(ClientInterface ci) throws RemoteException;
+
+    public boolean souJogador(ClientInterface ci) throws RemoteException;
 }

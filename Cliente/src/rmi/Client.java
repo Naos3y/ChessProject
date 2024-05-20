@@ -41,7 +41,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
     }
 
     public synchronized void recebeMensagem(String msg) throws RemoteException {
-        this.mensagem = msg+"\n";
+        this.mensagem = msg + "\n";
         this.nova = true;
 
     }
@@ -51,10 +51,13 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
         return this.mensagem;
 
     }
-    
-    public synchronized boolean getNova(){
+
+    public synchronized boolean getNova() {
         return this.nova;
     }
 
+    public void validar() {
+        this.nova = this.nova;
+    }
 
 }

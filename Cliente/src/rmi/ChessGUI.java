@@ -12,6 +12,8 @@ public class ChessGUI extends JFrame {
 
     public ClientInterface ci;
     public Client cliente;
+    public String myName;
+    public boolean JOGADOR = false;
 
     private SquarePanel[][] board = new SquarePanel[8][8];
 
@@ -39,7 +41,9 @@ public class ChessGUI extends JFrame {
     JScrollPane chat = new JScrollPane(textArea);
 
     /* PEDIR PARA SER EXPETADOR */
- /* PEDIR PARA SER JOGADOR */
+    JButton pedidoDeJogo = new JButton("Request to Play");
+
+    /* PEDIR PARA SER JOGADOR */
 
  /* PECAS DE FORA */
  /* Interface */
@@ -49,7 +53,6 @@ public class ChessGUI extends JFrame {
 
         atualizaChat thread = new atualizaChat(cliente);
         thread.start();
-
         this.ci = ci;
 
         setSize(100, 400);
@@ -85,6 +88,17 @@ public class ChessGUI extends JFrame {
 
         //board[7][3].removePiece();
         //board[0][0].setBackColor(1);
+        /* 
+        Estado dos botoes
+         */
+        userName.setEnabled(true);
+        serverIP.setEnabled(true);
+        serverPort.setEnabled(true);
+        startCon.setEnabled(true);
+        sendMessage.setEnabled(false);
+        textArea.setEnabled(false);
+        stopCon.setEnabled(false);
+
         painelPrincipal.setLayout(new BorderLayout());
         painelPrincipal.add(chessPanel, BorderLayout.CENTER);
 
@@ -121,9 +135,86 @@ public class ChessGUI extends JFrame {
         painelSuperior.add(serverPort);
         painelSuperior.add(startCon);
         painelSuperior.add(stopCon);
+        painelSuperior.add(pedidoDeJogo);
         painelPrincipal.add(painelSuperior, BorderLayout.NORTH);
 
         add(painelPrincipal, BorderLayout.CENTER);
+
+        startCon.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+
+                    if (userName.getText().length() != 0 && serverIP.getText().length() != 0 && serverPort.getText().length() != 0) {
+                        String ip = serverIP.getText();
+                        int porto;
+
+                        try {
+                            porto = stringParaInt(serverPort.getText());
+
+                        } catch (Exception ePorto) {
+
+                            JOptionPane.showMessageDialog(null, "O porto está incorreto!", "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        try {
+                            Registry reg = LocateRegistry.getRegistry(ip, porto);
+                            chess = (ChessInterface) reg.lookup("Server");
+                            chess.login(ci);
+
+                            JOGADOR = chess.souJogador(ci);
+
+                        } catch (Exception eReg) {
+                            JOptionPane.showMessageDialog(null, "O endereço IP está incorreto!", "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        /* Bloqueia os botoes Join & inputs */
+                        userName.setEnabled(false);
+                        serverIP.setEnabled(false);
+                        serverPort.setEnabled(false);
+                        startCon.setEnabled(false);
+                        if (JOGADOR) {
+                            sendMessage.setEnabled(true);
+                        }
+                        textArea.setEnabled(true);
+                        stopCon.setEnabled(true);
+                        /* -------------------------- */
+
+                        myName = userName.getText();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Todos os campos devem ser preenchidos!", "Error!", JOptionPane.ERROR_MESSAGE);
+                    }
+
+                } catch (Exception eLogin) {
+                    System.out.println(eLogin);
+                    JOptionPane.showMessageDialog(null, "O endereço IP e porto estão incorretos!", "VAMOS!", JOptionPane.ERROR_MESSAGE);
+
+                }
+            }
+
+        }
+        );
+
+        stopCon.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    chess.logout(ci);
+
+                    /* Bloqueia os botoes Leave*/
+                    userName.setEnabled(true);
+                    serverIP.setEnabled(true);
+                    serverPort.setEnabled(true);
+                    startCon.setEnabled(true);
+                    sendMessage.setEnabled(false);
+                    textArea.setEnabled(false);
+                    stopCon.setEnabled(false);
+
+                } catch (Exception eLogout) {
+                    System.out.println(eLogout);
+                }
+            }
+        });
 
         quit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -134,45 +225,45 @@ public class ChessGUI extends JFrame {
             }
         });
 
-        startCon.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    String ip = serverIP.getText();
-                    Registry reg = LocateRegistry.getRegistry(ip, Integer.parseInt(serverPort.getText()));
-                    chess = (ChessInterface) reg.lookup("Server");
-                    chess.login(ci);
-                    System.out.println("OK");
-                } catch (Exception eLogin) {
-                    System.out.println(eLogin);
-                }
-            }
-
-        });
-
-        stopCon.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    chess.logout(ci);
-                } catch (Exception eLogout) {
-                    System.out.println(eLogout);
-                }
-            }
-        });
-
         sendMessage.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    chess.sendMessage(inputChat.getText());
+                    chess.sendMessage(myName + ": " + inputChat.getText());
                 } catch (Exception eLogout) {
                     System.out.println(eLogout);
                 }
             }
         });
+
+        pedidoDeJogo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    chess.expetadorParaJogador(ci);
+                    try {
+                        JOGADOR = chess.souJogador(ci);
+                    } catch (Exception e1) {
+                        System.out.println(e1);
+                    }
+                    if (JOGADOR) {
+                        System.out.println("OK");
+                        sendMessage.setEnabled(true);
+                    }
+                } catch (Exception eExparaJogador) {
+                    System.out.println(eExparaJogador);
+                }
+            }
+        }
+        );
 
     }
 
     public void selected(int x, int y) {
         System.out.printf("mouse pressed at: %d - %d\n", x, y);
+    }
+
+    private int stringParaInt(String aMensagem) {
+
+        return Integer.parseInt(aMensagem);
     }
 
     public class atualizaChat extends Thread {
@@ -193,4 +284,5 @@ public class ChessGUI extends JFrame {
 
         }
     }
+
 }
