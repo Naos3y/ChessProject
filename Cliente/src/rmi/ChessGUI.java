@@ -181,29 +181,34 @@ public class ChessGUI extends JFrame {
                         try {
                             Registry reg = LocateRegistry.getRegistry(ip, porto);
                             chess = (ChessInterface) reg.lookup("Server");
-                            chess.login(ci);
+                            myName = userName.getText();
+                            if (chess.verificaNome(myName)) {
+                                chess.login(ci, myName);
+                                JOGADOR = chess.souJogador(ci);
 
-                            JOGADOR = chess.souJogador(ci);
+                                /* Bloqueia os botoes Join & inputs */
+                                userName.setEnabled(false);
+                                serverIP.setEnabled(false);
+                                serverPort.setEnabled(false);
+                                startCon.setEnabled(false);
+                                pedidoDeJogo.setEnabled(true);
+
+                                if (JOGADOR) {
+                                    sendMessage.setEnabled(true);
+                                }
+                                textArea.setEnabled(true);
+                                stopCon.setEnabled(true);
+                                /* -------------------------- */
+                            }else{
+                                JOptionPane.showMessageDialog(null, "O nome já existe!", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
 
                         } catch (Exception eReg) {
                             JOptionPane.showMessageDialog(null, "O endereço IP está incorreto!", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
-                        /* Bloqueia os botoes Join & inputs */
-                        userName.setEnabled(false);
-                        serverIP.setEnabled(false);
-                        serverPort.setEnabled(false);
-                        startCon.setEnabled(false);
-                        pedidoDeJogo.setEnabled(true);
 
-                        if (JOGADOR) {
-                            sendMessage.setEnabled(true);
-                        }
-                        textArea.setEnabled(true);
-                        stopCon.setEnabled(true);
-                        /* -------------------------- */
-
-                        myName = userName.getText();
                     } else {
                         JOptionPane.showMessageDialog(null, "Todos os campos devem ser preenchidos!", "Error!", JOptionPane.ERROR_MESSAGE);
                     }
@@ -235,7 +240,7 @@ public class ChessGUI extends JFrame {
                     pedidoDeJogo.setEnabled(false);
 
                 } catch (Exception eLogout) {
-                    System.out.println(eLogout+"AAA");
+                    System.out.println(eLogout + "AAA");
                 }
             }
         });
