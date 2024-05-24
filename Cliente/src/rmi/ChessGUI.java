@@ -57,6 +57,14 @@ public class ChessGUI extends JFrame {
     private static final int QUEEN = 4;
     private static final int KING = 5;
 
+    /* Auxiliar para a jogada */
+    String peca;
+    int[] inicio = new int[2];
+    int[] fim = new int[2];
+    boolean tabToFora;
+    boolean foraToTab;
+    boolean segundaClick;
+
     public ChessGUI(ClientInterface ci, Client cliente) {
 
         atualizaChat t1 = new atualizaChat(cliente);
@@ -82,30 +90,31 @@ public class ChessGUI extends JFrame {
             }
         }
 
-        board[7][0].setPiece(0, ROOK);
-        board[7][1].setPiece(0, KNIGHT);
-        board[7][2].setPiece(0, BISHOP);
-        board[7][3].setPiece(0, QUEEN);
-        board[7][4].setPiece(0, KING);
-        board[7][5].setPiece(0, BISHOP);
-        board[7][6].setPiece(0, KNIGHT);
-        board[7][7].setPiece(0, ROOK);
+        board[0][0].setPiece(0, ROOK, "BR1");
+        board[0][1].setPiece(0, KNIGHT, "BH1");
+        board[0][2].setPiece(0, BISHOP, "BB1");
+        board[0][3].setPiece(0, QUEEN, "BQ");
+        board[0][4].setPiece(0, KING, "BK");
+        board[0][5].setPiece(0, BISHOP, "BB2");
+        board[0][6].setPiece(0, KNIGHT, "BH2");
+        board[0][7].setPiece(0, ROOK, "BR2");
 
         for (int i = 0; i < 8; i++) {
-            board[6][i].setPiece(0, PAWN);
+            board[1][i].setPiece(0, PAWN, "BP" + (i + 1));
         }
 
-        board[0][0].setPiece(1, ROOK);
-        board[0][1].setPiece(1, KNIGHT);
-        board[0][2].setPiece(1, BISHOP);
-        board[0][3].setPiece(1, QUEEN);
-        board[0][4].setPiece(1, KING);
-        board[0][5].setPiece(1, BISHOP);
-        board[0][6].setPiece(1, KNIGHT);
-        board[0][7].setPiece(1, ROOK);
+        // Set white pieces
+        board[7][0].setPiece(1, ROOK, "WR1");
+        board[7][1].setPiece(1, KNIGHT, "WH1");
+        board[7][2].setPiece(1, BISHOP, "WB1");
+        board[7][3].setPiece(1, KING, "WK");
+        board[7][4].setPiece(1, QUEEN, "WQ");
+        board[7][5].setPiece(1, BISHOP, "WB2");
+        board[7][6].setPiece(1, KNIGHT, "WH2");
+        board[7][7].setPiece(1, ROOK, "WR2");
 
         for (int i = 0; i < 8; i++) {
-            board[1][i].setPiece(1, PAWN);
+            board[6][i].setPiece(1, PAWN, "WP" + (i + 1));
         }
 
         /* 
@@ -199,7 +208,7 @@ public class ChessGUI extends JFrame {
                                 textArea.setEnabled(true);
                                 stopCon.setEnabled(true);
                                 /* -------------------------- */
-                            }else{
+                            } else {
                                 JOptionPane.showMessageDialog(null, "O nome já existe!", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
@@ -278,9 +287,18 @@ public class ChessGUI extends JFrame {
     }
 
     public void selected(int x, int y, Piece p) {
-        try {
-            System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
-        } catch (Exception e) {
+        inicio[0] = x;
+        inicio[1] = y;
+        peca = p.getID();
+        System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
+        segundaClick = !segundaClick;
+
+    }
+
+    public void selectWS(int x, int y) {
+        if (segundaClick) {
+            fim[0] = x;
+            fim[1] = y;
             System.out.println("mouse pressed at:" + x + " : " + y);
         }
     }

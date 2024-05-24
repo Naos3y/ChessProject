@@ -12,7 +12,7 @@ public class SquarePanel extends JPanel {
     private ChessGUI cg;
     private JLabel imageLabel;
     private Piece piece;
-    
+
     private static Image pieceImage[][] = new Image[2][6];
     private static String imageFilename[][] = {
         {"wp.gif", "wn.gif", "wb.gif", "wr.gif", "wq.gif", "wk.gif"},
@@ -51,8 +51,8 @@ public class SquarePanel extends JPanel {
         }
     }
 
-    public void setPiece(int color, int type) {
-        piece = new Piece(color, type);
+    public void setPiece(int color, int type, String ID) {
+        piece = new Piece(color, type, ID);
         imageLabel.setIcon(new ImageIcon(pieceImage[color][type]));
     }
 
@@ -74,8 +74,18 @@ public class SquarePanel extends JPanel {
         }
 
         public void mousePressed(MouseEvent e) {
-            cg.selected(row, column, piece);
-            setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+            try {
+
+                cg.selected(row, column, piece);
+                System.out.println("ENTRA TRY");
+                setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+            } catch (Exception e1) {
+                cg.selectWS(row, column);
+                System.out.println(e1);
+
+                setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+
+            }
         }
 
     }

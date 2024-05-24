@@ -12,10 +12,12 @@ public class Piece {
 
     private int color;
     private int type;
+    private String ID;
 
-    public Piece(int color, int type) {
+    public Piece(int color, int type, String ID) {
         this.color = color;
         this.type = type;
+        this.ID = ID;
     }
 
     public int getColor() {
@@ -24,6 +26,10 @@ public class Piece {
 
     public int getType() {
         return type;
+    }
+
+    public String getID() {
+        return ID;
     }
 
     public void setColor(int color) {
@@ -61,7 +67,7 @@ public class Piece {
         }
 
         String colorName = (color == 0) ? "White" : "Black";
-        return "Piece{" + "color=" + colorName + ", type=" + typeName + '}';
+        return "Piece{" + "color=" + colorName + ", type=" + typeName + '}'+ colorName + ID;
     }
 
 }
