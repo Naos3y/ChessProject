@@ -69,8 +69,10 @@ public class ChessGUI extends JFrame {
 
         atualizaChat t1 = new atualizaChat(cliente);
         verificarJogador t2 = new verificarJogador();
+        atualizaTabuleiro t3 = new atualizaTabuleiro(cliente);
         t1.start();
         t2.start();
+        t3.start();
         this.ci = ci;
 
         setSize(100, 400);
@@ -90,8 +92,7 @@ public class ChessGUI extends JFrame {
             }
         }
 
-//        board[0][0].setPiece(0, ROOK, "BR1");
-        board[0][0] = null;
+        board[0][0].setPiece(0, ROOK, "BR1");
         board[0][1].setPiece(0, KNIGHT, "BH1");
         board[0][2].setPiece(0, BISHOP, "BB1");
         board[0][3].setPiece(0, QUEEN, "BQ");
@@ -208,6 +209,7 @@ public class ChessGUI extends JFrame {
                                 }
                                 textArea.setEnabled(true);
                                 stopCon.setEnabled(true);
+
                                 /* -------------------------- */
                             } else {
                                 JOptionPane.showMessageDialog(null, "O nome já existe!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -229,7 +231,6 @@ public class ChessGUI extends JFrame {
 
                 }
             }
-
         }
         );
 
@@ -288,26 +289,28 @@ public class ChessGUI extends JFrame {
     }
 
     public void selected(int x, int y, Piece p) {
-        if (segundaClick) {
-            fim[0] = x;
-            fim[1] = y;
-            System.out.println("mouse pressed at:" + x + " : " + y);
-            try {
-                System.out.println("" + inicio[0] + inicio[1] + fim[0] + fim[1]);
-                chess.jogada(peca, inicio, fim, false, false);
+        if (JOGADOR) {
+            if (segundaClick) {
+                fim[0] = x;
+                fim[1] = y;
+                System.out.println("mouse pressed at:" + x + " : " + y);
+                try {
+                    System.out.println("" + inicio[0] + inicio[1] + fim[0] + fim[1]);
+                    chess.jogada(peca, inicio, fim, false, false);
 
-            } catch (Exception e1) {
+                } catch (Exception e1) {
 
-            } finally {
-                segundaClick = !segundaClick;
+                } finally {
+                    segundaClick = !segundaClick;
 
+                }
+            } else {
+                inicio[0] = x;
+                inicio[1] = y;
+                peca = p.getID();
+                System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
+                segundaClick = true;
             }
-        } else {
-            inicio[0] = x;
-            inicio[1] = y;
-            peca = p.getID();
-            System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
-            segundaClick = true;
         }
 
     }
@@ -360,19 +363,87 @@ public class ChessGUI extends JFrame {
 
     public class atualizaTabuleiro extends Thread {
 
-        public atualizaTabuleiro() {
+        private Client cliente;
+        int type;
+        int apeca;
+
+        public atualizaTabuleiro(Client cliente) {
+            this.cliente = cliente;
 
         }
 
+        @Override
         public void run() {
             while (true) {
                 try {
+                    for (int i = 0; i < 8; i++) {
+                        for (int j = 0; j < 8; j++) { // Corrigido de 'i++' para 'j++'
+                            if (Character.toUpperCase(cliente.board[i][j].charAt(0)) == 'B') {
+                                type = 0;
+                                switch (Character.toUpperCase(cliente.board[i][j].charAt(1))) {
+                                    case 'R':
+                                        apeca = 3;
+                                        break;
+                                    case 'H':
+                                        apeca = 1;
+                                        break;
+                                    case 'B':
+                                        apeca = 2;
+                                        break;
+                                    case 'Q':
+                                        apeca = 4;
+                                        break;
+                                    case 'K':
+                                        apeca = 5;
+                                        break;
+                                    case 'P':
+                                        apeca = 0;
+                                        break;
+                                    default:
+                                        apeca = -1; // Valor inválido para indicar erro
+                                        break;
+                                }
+                            } else if (Character.toUpperCase(cliente.board[i][j].charAt(0)) == 'W') {
+                                type = 1;
+                                switch (Character.toUpperCase(cliente.board[i][j].charAt(1))) {
+                                    case 'R':
+                                        apeca = 3;
+                                        break;
+                                    case 'H':
+                                        apeca = 1;
+                                        break;
+                                    case 'B':
+                                        apeca = 2;
+                                        break;
+                                    case 'Q':
+                                        apeca = 4;
+                                        break;
+                                    case 'K':
+                                        apeca = 5;
+                                        break;
+                                    case 'P':
+                                        apeca = 0;
+                                        break;
+                                    default:
+                                        apeca = -1; // Valor inválido para indicar erro
+                                        break;
+                                }
+                            } else {
+                                apeca = -1; // Valor inválido para indicar posição vazia
+                            }
 
+                            if (apeca != -1) {
+                                board[i][j].setPiece(type, apeca, cliente.board[i][j]);
+                            } else {
+                                board[i][j].removePiece(); // Supondo que haja um método para remover a peça
+                            }
+                        }
+                    }
+                    chessPanel.repaint();
+                    Thread.sleep(100); // Pequeno atraso para evitar uso excessivo da CPU
                 } catch (Exception e1) {
                 }
             }
-
         }
     }
-
 }

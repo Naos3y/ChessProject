@@ -97,6 +97,17 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
         } else if (jogadores[1] == null) {
             jogadores[1] = ci;
         }
+
+        Iterator<ClientInterface> iterator = users.keySet().iterator();
+        while (iterator.hasNext()) {
+            ClientInterface key = iterator.next();
+            try {
+                key.atualizaTab(board, fora);
+            } catch (Exception e) {
+                iterator.remove();
+            }
+
+        }
     }
 
     public synchronized void logout(ClientInterface ci) throws RemoteException {
@@ -130,14 +141,13 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             System.out.println();
         }
     }
-    
-    
+
     public synchronized void printForaBoard(String[] fora) {
         for (int i = 0; i < fora.length; i++) {
             System.out.println(fora[i]);
         }
     }
-    
+
     public synchronized void jogada(String peca, int[] inicio, int[] fim, boolean tabToFora, boolean foraToTab) {
         int inicioA = inicio[0];
         int inicioB = inicio[1];
@@ -145,6 +155,9 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
         int fimB = fim[1];
 
 //        printChessBoard(board);
+        if (inicioA == fimA && inicioB == fimB) {
+            return;
+        }
 
         if (!tabToFora && !foraToTab) {
             if (board[fimA][fimB].equals("none")) {
@@ -155,8 +168,8 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
                     if (fora[i].equals("none")) {
                         fora[i] = board[fimA][fimB];
                         board[fimA][fimB] = peca;
-                        board[inicioA][inicioB] = "none"; // Atualize a posição inicial para "none"
-                        break; // Pare o loop após encontrar um espaço vazio
+                        board[inicioA][inicioB] = "none";
+                        break;
                     }
                 }
             }
@@ -165,7 +178,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             for (int i = 0; i < fora.length; i++) {
                 if (fora[i].equals("none")) {
                     fora[i] = peca;
-                    break; // Pare o loop após encontrar um espaço vazio
+                    break;
                 }
             }
         } else if (!tabToFora && foraToTab) {
@@ -173,13 +186,11 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             for (int i = 0; i < fora.length; i++) {
                 if (fora[i].equals(peca)) {
                     fora[i] = "none";
-                    break; // Pare o loop após encontrar a peça
+                    break;
                 }
             }
         }
 
-//        printChessBoard(board);
-//        printForaBoard(fora);
         Iterator<ClientInterface> iterator = users.keySet().iterator();
         while (iterator.hasNext()) {
             ClientInterface key = iterator.next();
@@ -191,7 +202,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
 
         }
     }
-    
+
     public synchronized void sendMessage(String message) throws RemoteException {
         Iterator<ClientInterface> iterator = users.keySet().iterator();
         while (iterator.hasNext()) {
