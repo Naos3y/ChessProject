@@ -80,8 +80,8 @@ public class SquarePanel extends JPanel {
                 System.out.println("ENTRA TRY");
                 setBorder(BorderFactory.createLineBorder(Color.RED, 2));
             } catch (Exception e1) {
-                cg.selectWS(row, column);
-                System.out.println(e1);
+                cg.selected(row, column,null);
+                System.out.println("selected at :" + row +" and "+column);
 
                 setBorder(BorderFactory.createLineBorder(Color.RED, 2));
 

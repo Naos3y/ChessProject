@@ -90,7 +90,8 @@ public class ChessGUI extends JFrame {
             }
         }
 
-        board[0][0].setPiece(0, ROOK, "BR1");
+//        board[0][0].setPiece(0, ROOK, "BR1");
+        board[0][0] = null;
         board[0][1].setPiece(0, KNIGHT, "BH1");
         board[0][2].setPiece(0, BISHOP, "BB1");
         board[0][3].setPiece(0, QUEEN, "BQ");
@@ -287,20 +288,28 @@ public class ChessGUI extends JFrame {
     }
 
     public void selected(int x, int y, Piece p) {
-        inicio[0] = x;
-        inicio[1] = y;
-        peca = p.getID();
-        System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
-        segundaClick = !segundaClick;
-
-    }
-
-    public void selectWS(int x, int y) {
         if (segundaClick) {
             fim[0] = x;
             fim[1] = y;
             System.out.println("mouse pressed at:" + x + " : " + y);
+            try {
+                System.out.println("" + inicio[0] + inicio[1] + fim[0] + fim[1]);
+                chess.jogada(peca, inicio, fim, false, false);
+
+            } catch (Exception e1) {
+
+            } finally {
+                segundaClick = !segundaClick;
+
+            }
+        } else {
+            inicio[0] = x;
+            inicio[1] = y;
+            peca = p.getID();
+            System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
+            segundaClick = true;
         }
+
     }
 
     private int stringParaInt(String aMensagem) {
@@ -342,6 +351,23 @@ public class ChessGUI extends JFrame {
                         sendMessage.setEnabled(true);
                     }
                     Thread.sleep(5000);
+                } catch (Exception e1) {
+                }
+            }
+
+        }
+    }
+
+    public class atualizaTabuleiro extends Thread {
+
+        public atualizaTabuleiro() {
+
+        }
+
+        public void run() {
+            while (true) {
+                try {
+
                 } catch (Exception e1) {
                 }
             }

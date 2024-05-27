@@ -17,4 +17,6 @@ public interface ClientInterface extends Remote {
 
     public void validar() throws RemoteException;
 
+   public void atualizaTab(String[][] board, String[] fora) throws RemoteException;
+
 }

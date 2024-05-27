@@ -41,7 +41,6 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
         "none", "none", "none", "none", "none", "none", "none", "none",
         "none", "none", "none", "none", "none", "none", "none", "none",
         "none", "none", "none", "none", "none", "none", "none", "none",
-        "none", "none", "none", "none", "none", "none", "none", "none",
         "none", "none", "none", "none", "none", "none", "none", "none"
     };
 
@@ -123,70 +122,76 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
 
     }
 
-    public synchronized void jogada(String peca, String[] inicio, String[] fim, boolean tabToFora, boolean foraToTab) {
-        int inicioA = Integer.parseInt(inicio[0]);
-        int inicioB = -1;
-        int fimA = Integer.parseInt(fim[0]);
-        int fimB = -1;
+    public synchronized void printChessBoard(String[][] board) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                System.out.print(board[i][j] + "\t");
+            }
+            System.out.println();
+        }
+    }
+    
+    
+    public synchronized void printForaBoard(String[] fora) {
+        for (int i = 0; i < fora.length; i++) {
+            System.out.println(fora[i]);
+        }
+    }
+    
+    public synchronized void jogada(String peca, int[] inicio, int[] fim, boolean tabToFora, boolean foraToTab) {
+        int inicioA = inicio[0];
+        int inicioB = inicio[1];
+        int fimA = fim[0];
+        int fimB = fim[1];
+
+//        printChessBoard(board);
 
         if (!tabToFora && !foraToTab) {
-
-            for (int i = 0; i < 8; i++) {
-                if (inicio[1].equalsIgnoreCase(letras[i])) {
-                    inicioB = i;
-                }
-            }
-
-            for (int i = 0; i < 8; i++) {
-                if (fim[1].equalsIgnoreCase(letras[i])) {
-                    fimB = i;
-                }
-            }
-
-            this.board[inicioA][inicioB] = "none";
             if (board[fimA][fimB].equals("none")) {
-                this.board[fimA][fimB] = peca;
+                board[fimA][fimB] = peca;
+                board[inicioA][inicioB] = "none";
             } else {
                 for (int i = 0; i < fora.length; i++) {
                     if (fora[i].equals("none")) {
                         fora[i] = board[fimA][fimB];
                         board[fimA][fimB] = peca;
+                        board[inicioA][inicioB] = "none"; // Atualize a posição inicial para "none"
+                        break; // Pare o loop após encontrar um espaço vazio
                     }
                 }
             }
         } else if (tabToFora && !foraToTab) {
-
-            for (int i = 0; i < 8; i++) {
-                if (inicio[1].equalsIgnoreCase(letras[i])) {
-                    inicioB = i;
-                }
-            }
-            this.board[inicioA][inicioB] = "none";
-
+            board[inicioA][inicioB] = "none";
             for (int i = 0; i < fora.length; i++) {
                 if (fora[i].equals("none")) {
                     fora[i] = peca;
+                    break; // Pare o loop após encontrar um espaço vazio
                 }
             }
-
-        } else {
-
-            for (int i = 0; i < 8; i++) {
-                if (inicio[1].equalsIgnoreCase(letras[i])) {
-                    inicioB = i;
-                }
-            }
-            this.board[inicioA][inicioB] = peca;
-
+        } else if (!tabToFora && foraToTab) {
+            board[fimA][fimB] = peca;
             for (int i = 0; i < fora.length; i++) {
                 if (fora[i].equals(peca)) {
                     fora[i] = "none";
+                    break; // Pare o loop após encontrar a peça
                 }
+            }
+        }
+
+//        printChessBoard(board);
+//        printForaBoard(fora);
+        Iterator<ClientInterface> iterator = users.keySet().iterator();
+        while (iterator.hasNext()) {
+            ClientInterface key = iterator.next();
+            try {
+                key.atualizaTab(board, fora);
+            } catch (Exception e) {
+                iterator.remove();
             }
 
         }
     }
-
+    
     public synchronized void sendMessage(String message) throws RemoteException {
         Iterator<ClientInterface> iterator = users.keySet().iterator();
         while (iterator.hasNext()) {

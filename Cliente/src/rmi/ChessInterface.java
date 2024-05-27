@@ -19,7 +19,7 @@ public interface ChessInterface extends Remote {
 
     public void logout(ClientInterface ci) throws RemoteException;
 
-    public void jogada(String peca, String[] inicio, String[] fim, boolean tabToFora, boolean foraToTab) throws RemoteException;
+    public void jogada(String peca, int[] inicio, int[] fim, boolean tabToFora, boolean foraToTab) throws RemoteException;
 
     public void sendMessage(String message) throws RemoteException;
 
