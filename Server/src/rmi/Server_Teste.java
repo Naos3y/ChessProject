@@ -34,14 +34,18 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
         {"none", "none", "none", "none", "none", "none", "none", "none"},
         {"none", "none", "none", "none", "none", "none", "none", "none"},
         {"WP1", "WP2", "WP3", "WP4", "WP5", "WP6", "WP7", "WP8"},
-        {"WR1", "WH1", "WB1", "WK", "WQ", "WB2", "WH2", "WR2"}
+        {"WR1", "WH1", "WB1", "WK", "WQ", "WB2", "WH2", "WR2"},
+        {"none", "none", "none", "none", "none", "none", "none", "none"},
+        {"none", "none", "none", "none", "none", "none", "none", "none"},
+        {"none", "none", "none", "none", "none", "none", "none", "none"},
+        {"none", "none", "none", "none", "none", "none", "none", "none"}
     };
 
-    private String[] fora = {
-        "none", "none", "none", "none", "none", "none", "none", "none",
-        "none", "none", "none", "none", "none", "none", "none", "none",
-        "none", "none", "none", "none", "none", "none", "none", "none",
-        "none", "none", "none", "none", "none", "none", "none", "none"
+    private String[][] fora = {
+        {"none", "none", "none", "none", "none", "none", "none", "none"},
+        {"none", "none", "none", "none", "none", "none", "none", "none"},
+        {"none", "none", "none", "none", "none", "none", "none", "none"},
+        {"none", "none", "none", "none", "none", "none", "none", "none"}
     };
 
     public static void main(String[] args) {
@@ -75,15 +79,18 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             {"none", "none", "none", "none", "none", "none", "none", "none"},
             {"none", "none", "none", "none", "none", "none", "none", "none"},
             {"WP1", "WP2", "WP3", "WP4", "WP5", "WP6", "WP7", "WP8"},
-            {"WR1", "WH1", "WB1", "WK", "WQ", "WB2", "WH2", "WR2"}
+            {"WR1", "WH1", "WB1", "WK", "WQ", "WB2", "WH2", "WR2"},
+            {"none", "none", "none", "none", "none", "none", "none", "none"},
+            {"none", "none", "none", "none", "none", "none", "none", "none"},
+            {"none", "none", "none", "none", "none", "none", "none", "none"},
+            {"none", "none", "none", "none", "none", "none", "none", "none"}
         };
 
-        this.fora = new String[]{
-            "none", "none", "none", "none", "none", "none", "none", "none",
-            "none", "none", "none", "none", "none", "none", "none", "none",
-            "none", "none", "none", "none", "none", "none", "none", "none",
-            "none", "none", "none", "none", "none", "none", "none", "none",
-            "none", "none", "none", "none", "none", "none", "none", "none"
+        this.fora = new String[][]{
+            {"none", "none", "none", "none", "none", "none", "none", "none"},
+            {"none", "none", "none", "none", "none", "none", "none", "none"},
+            {"none", "none", "none", "none", "none", "none", "none", "none"},
+            {"none", "none", "none", "none", "none", "none", "none", "none"}
         };
 
     }
@@ -102,7 +109,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
         while (iterator.hasNext()) {
             ClientInterface key = iterator.next();
             try {
-                key.atualizaTab(board, fora);
+                key.atualizaTab(board);
             } catch (Exception e) {
                 iterator.remove();
             }
@@ -153,55 +160,46 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
         int inicioB = inicio[1];
         int fimA = fim[0];
         int fimB = fim[1];
+        boolean flag = false;
 
 //        printChessBoard(board);
         if (inicioA == fimA && inicioB == fimB) {
             return;
         }
 
-        if (!tabToFora && !foraToTab) {
-            if (board[fimA][fimB].equals("none")) {
-                board[fimA][fimB] = peca;
-                board[inicioA][inicioB] = "none";
-            } else {
-                for (int i = 0; i < fora.length; i++) {
-                    if (fora[i].equals("none")) {
-                        fora[i] = board[fimA][fimB];
+        if (board[fimA][fimB].equals("none")) {
+            board[fimA][fimB] = peca;
+            board[inicioA][inicioB] = "none";
+        } else {
+            for (int i = 8; i < 12; i++) {
+                if(flag) {
+                    break;
+                }
+                for (int j = 0; j < 8; j++) {
+                    if (board[i][j].equals("none")) {
+                        board[i][j] = board[fimA][fimB];
                         board[fimA][fimB] = peca;
                         board[inicioA][inicioB] = "none";
+                        flag = true;
                         break;
                     }
-                }
-            }
-        } else if (tabToFora && !foraToTab) {
-            board[inicioA][inicioB] = "none";
-            for (int i = 0; i < fora.length; i++) {
-                if (fora[i].equals("none")) {
-                    fora[i] = peca;
-                    break;
-                }
-            }
-        } else if (!tabToFora && foraToTab) {
-            board[fimA][fimB] = peca;
-            for (int i = 0; i < fora.length; i++) {
-                if (fora[i].equals(peca)) {
-                    fora[i] = "none";
-                    break;
+
                 }
             }
         }
-
         Iterator<ClientInterface> iterator = users.keySet().iterator();
         while (iterator.hasNext()) {
             ClientInterface key = iterator.next();
             try {
-                key.atualizaTab(board, fora);
+                key.atualizaTab(board);
             } catch (Exception e) {
                 iterator.remove();
             }
 
         }
+
     }
+
 
     public synchronized void sendMessage(String message) throws RemoteException {
         Iterator<ClientInterface> iterator = users.keySet().iterator();

@@ -13,5 +13,5 @@ import java.rmi.*;
 public interface ClientInterface extends Remote {
    public void recebeMensagem(String msg) throws RemoteException;
    public void validar() throws RemoteException;
-   public void atualizaTab(String[][] board, String[] fora) throws RemoteException;
+   public void atualizaTab(String[][] board) throws RemoteException;
 }

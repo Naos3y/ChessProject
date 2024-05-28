@@ -22,8 +22,8 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
 
     public String mensagem;
     public boolean nova = false;
-    public String[][] board = new String[8][8];
-    public String[] fora = new String[32];
+    public String[][] board = new String[12][8];
+//    public String[][] fora = new String[4][8];
 
     static public void main(String[] args) {
 
@@ -36,6 +36,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
                     mainFrame.setVisible(true);
                     mainFrame.setResizable(false);
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
             }
@@ -62,10 +63,9 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
     public void validar() {
         this.nova = this.nova;
     }
-    
-    public void  atualizaTab(String[][] board, String[] fora) throws RemoteException{
+
+    public void atualizaTab(String[][] board) throws RemoteException {
         this.board = board;
-        this.fora = fora;
     }
 
 }

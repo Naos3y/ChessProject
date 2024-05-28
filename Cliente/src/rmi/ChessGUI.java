@@ -14,7 +14,8 @@ public class ChessGUI extends JFrame {
     public String myName;
     public boolean JOGADOR = false;
 
-    private SquarePanel[][] board = new SquarePanel[8][8];
+    private SquarePanel[][] board = new SquarePanel[12][8];
+//    private SquarePanelFora[][] fora = new SquarePanelFora[4][8];
 
     private JPanel chessPanel = new JPanel();
     private JPanel painelPrincipal = new JPanel();
@@ -44,7 +45,6 @@ public class ChessGUI extends JFrame {
 
     /* PEDIR PARA SER JOGADOR */
 
- /* PECAS DE FORA */
  /* Interface */
     public ChessInterface chess;
     public ClientInterface ci;
@@ -64,6 +64,7 @@ public class ChessGUI extends JFrame {
     boolean tabToFora;
     boolean foraToTab;
     boolean segundaClick;
+    boolean segundaClickFora;
 
     public ChessGUI(ClientInterface ci, Client cliente) {
 
@@ -77,8 +78,8 @@ public class ChessGUI extends JFrame {
 
         setSize(100, 400);
         setLayout(new BorderLayout());
-
         chessPanel.setLayout(new GridLayout(8, 8));
+        chessPanel.setPreferredSize(new Dimension(500, 500));
 
         SquarePanel.loadPieceImages();
 
@@ -92,31 +93,30 @@ public class ChessGUI extends JFrame {
             }
         }
 
-        board[0][0].setPiece(0, ROOK, "BR1");
-        board[0][1].setPiece(0, KNIGHT, "BH1");
-        board[0][2].setPiece(0, BISHOP, "BB1");
-        board[0][3].setPiece(0, QUEEN, "BQ");
-        board[0][4].setPiece(0, KING, "BK");
-        board[0][5].setPiece(0, BISHOP, "BB2");
-        board[0][6].setPiece(0, KNIGHT, "BH2");
-        board[0][7].setPiece(0, ROOK, "BR2");
+        board[0][0].setPiece(1, ROOK, "BR1");
+        board[0][1].setPiece(1, KNIGHT, "BH1");
+        board[0][2].setPiece(1, BISHOP, "BB1");
+        board[0][3].setPiece(1, QUEEN, "BQ");
+        board[0][4].setPiece(1, KING, "BK");
+        board[0][5].setPiece(1, BISHOP, "BB2");
+        board[0][6].setPiece(1, KNIGHT, "BH2");
+        board[0][7].setPiece(1, ROOK, "BR2");
 
         for (int i = 0; i < 8; i++) {
-            board[1][i].setPiece(0, PAWN, "BP" + (i + 1));
+            board[1][i].setPiece(1, PAWN, "BP" + (i + 1));
         }
 
-        // Set white pieces
-        board[7][0].setPiece(1, ROOK, "WR1");
-        board[7][1].setPiece(1, KNIGHT, "WH1");
-        board[7][2].setPiece(1, BISHOP, "WB1");
-        board[7][3].setPiece(1, KING, "WK");
-        board[7][4].setPiece(1, QUEEN, "WQ");
-        board[7][5].setPiece(1, BISHOP, "WB2");
-        board[7][6].setPiece(1, KNIGHT, "WH2");
-        board[7][7].setPiece(1, ROOK, "WR2");
+        board[7][0].setPiece(0, ROOK, "WR1");
+        board[7][1].setPiece(0, KNIGHT, "WH1");
+        board[7][2].setPiece(0, BISHOP, "WB1");
+        board[7][3].setPiece(0, KING, "WK");
+        board[7][4].setPiece(0, QUEEN, "WQ");
+        board[7][5].setPiece(0, BISHOP, "WB2");
+        board[7][6].setPiece(0, KNIGHT, "WH2");
+        board[7][7].setPiece(0, ROOK, "WR2");
 
         for (int i = 0; i < 8; i++) {
-            board[6][i].setPiece(1, PAWN, "WP" + (i + 1));
+            board[6][i].setPiece(0, PAWN, "WP" + (i + 1));
         }
 
         /* 
@@ -148,7 +148,19 @@ public class ChessGUI extends JFrame {
 
         /* Painel das Esquerda*/
         painelEsquerda.setBackground(Color.pink);
+        painelEsquerda.setLayout(new FlowLayout());
+        for (int i = 8; i < 12; i++) {
+            for (int j = 0; j < 8; j++) {
+                SquarePanel sqPanel = new SquarePanel(i, j, this);
+                sqPanel.setBackColor((i + j) % 2);
+                board[i][j] = sqPanel;
+                painelEsquerda.add(sqPanel);
+
+            }
+        }
         painelPrincipal.add(painelEsquerda, BorderLayout.WEST);
+
+        painelEsquerda.setPreferredSize(new Dimension(200, 600));
 
         /* Painel do Inferior*/
         painelInferior.setBackground(Color.blue);
@@ -305,11 +317,46 @@ public class ChessGUI extends JFrame {
 
                 }
             } else {
+                try {
+                    inicio[0] = x;
+                    inicio[1] = y;
+                    peca = p.getID();
+                    System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
+                    segundaClick = true;
+                } catch (Exception e2) {
+
+                }
+            }
+        }
+
+    }
+
+    public void selectedFora(int x, int y, Piece p) {
+        System.out.println("-------------------------------------");
+        System.out.println("X:" + x + " Y:" + y);
+        System.out.println("ENTRA SELECT FORA");
+
+        if (JOGADOR) {
+            if (segundaClickFora) {
+                fim[0] = x;
+                fim[1] = y;
+                System.out.println("mouse pressed at:" + x + " : " + y);
+                try {
+                    System.out.println("" + inicio[0] + inicio[1] + fim[0] + fim[1]);
+                    chess.jogada(peca, inicio, fim, false, true);
+
+                } catch (Exception e1) {
+
+                } finally {
+                    segundaClickFora = !segundaClickFora;
+
+                }
+            } else {
                 inicio[0] = x;
                 inicio[1] = y;
                 peca = p.getID();
                 System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
-                segundaClick = true;
+                segundaClickFora = true;
             }
         }
 
@@ -366,10 +413,72 @@ public class ChessGUI extends JFrame {
         private Client cliente;
         int type;
         int apeca;
+        int[] pecaFinal = new int[2];
 
         public atualizaTabuleiro(Client cliente) {
             this.cliente = cliente;
 
+        }
+
+        public int[] tipoPeca(char tipo, char peca) {
+            int[] resultado = new int[2];
+
+            if (Character.toUpperCase(tipo) == 'B') {
+                resultado[0] = 1;
+                switch (Character.toUpperCase(peca)) {
+                    case 'R':
+                        resultado[1] = 3;
+                        break;
+                    case 'H':
+                        resultado[1] = 1;
+                        break;
+                    case 'B':
+                        resultado[1] = 2;
+                        break;
+
+                    case 'Q':
+                        resultado[1] = 4;
+                        break;
+                    case 'K':
+                        resultado[1] = 5;
+                        break;
+                    case 'P':
+                        resultado[1] = 0;
+                        break;
+                    default:
+                        resultado[1] = -1;
+                        break;
+                }
+            } else if (Character.toUpperCase(tipo) == 'W') {
+                resultado[0] = 0;
+                switch (Character.toUpperCase(peca)) {
+                    case 'R':
+                        resultado[1] = 3;
+                        break;
+                    case 'H':
+                        resultado[1] = 1;
+                        break;
+                    case 'B':
+                        resultado[1] = 2;
+                        break;
+                    case 'Q':
+                        resultado[1] = 4;
+                        break;
+                    case 'K':
+                        resultado[1] = 5;
+                        break;
+                    case 'P':
+                        resultado[1] = 0;
+                        break;
+                    default:
+                        resultado[1] = -1;
+                        break;
+                }
+            } else {
+                resultado[1] = -1;
+            }
+
+            return resultado;
         }
 
         @Override
@@ -377,70 +486,30 @@ public class ChessGUI extends JFrame {
             while (true) {
                 try {
                     for (int i = 0; i < 8; i++) {
-                        for (int j = 0; j < 8; j++) { // Corrigido de 'i++' para 'j++'
-                            if (Character.toUpperCase(cliente.board[i][j].charAt(0)) == 'B') {
-                                type = 0;
-                                switch (Character.toUpperCase(cliente.board[i][j].charAt(1))) {
-                                    case 'R':
-                                        apeca = 3;
-                                        break;
-                                    case 'H':
-                                        apeca = 1;
-                                        break;
-                                    case 'B':
-                                        apeca = 2;
-                                        break;
-                                    case 'Q':
-                                        apeca = 4;
-                                        break;
-                                    case 'K':
-                                        apeca = 5;
-                                        break;
-                                    case 'P':
-                                        apeca = 0;
-                                        break;
-                                    default:
-                                        apeca = -1; // Valor inválido para indicar erro
-                                        break;
-                                }
-                            } else if (Character.toUpperCase(cliente.board[i][j].charAt(0)) == 'W') {
-                                type = 1;
-                                switch (Character.toUpperCase(cliente.board[i][j].charAt(1))) {
-                                    case 'R':
-                                        apeca = 3;
-                                        break;
-                                    case 'H':
-                                        apeca = 1;
-                                        break;
-                                    case 'B':
-                                        apeca = 2;
-                                        break;
-                                    case 'Q':
-                                        apeca = 4;
-                                        break;
-                                    case 'K':
-                                        apeca = 5;
-                                        break;
-                                    case 'P':
-                                        apeca = 0;
-                                        break;
-                                    default:
-                                        apeca = -1; // Valor inválido para indicar erro
-                                        break;
-                                }
+                        for (int j = 0; j < 8; j++) {
+                            pecaFinal = tipoPeca(cliente.board[i][j].charAt(0), cliente.board[i][j].charAt(1));
+                            if (pecaFinal[1] != -1) {
+                                board[i][j].setPiece(pecaFinal[0], pecaFinal[1], cliente.board[i][j]);
                             } else {
-                                apeca = -1; // Valor inválido para indicar posição vazia
+                                board[i][j].removePiece();
                             }
+                        }
+                    }
 
-                            if (apeca != -1) {
-                                board[i][j].setPiece(type, apeca, cliente.board[i][j]);
+                    for (int i = 8; i < 12; i++) {
+                        for (int j = 0; j < 8; j++) {
+                            pecaFinal = tipoPeca(cliente.board[i][j].charAt(0), cliente.board[i][j].charAt(1));
+                            if (pecaFinal[1] != -1) {
+                                board[i][j].setPiece(pecaFinal[0], pecaFinal[1], cliente.board[i][j]);
                             } else {
-                                board[i][j].removePiece(); // Supondo que haja um método para remover a peça
+                                board[i][j].removePiece();
                             }
                         }
                     }
                     chessPanel.repaint();
-                    Thread.sleep(100); // Pequeno atraso para evitar uso excessivo da CPU
+                    painelEsquerda.repaint();
+                    Thread.sleep(100);
+
                 } catch (Exception e1) {
                 }
             }
