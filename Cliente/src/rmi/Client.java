@@ -21,7 +21,10 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
     }
 
     public String mensagem;
+    public String log;
     public boolean nova = false;
+    public boolean newLog = false;
+    
     public String[][] board = new String[12][8];
 //    public String[][] fora = new String[4][8];
 
@@ -32,7 +35,8 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
                 try {
                     Client client = new Client();
                     ChessGUI mainFrame = new ChessGUI(client, client);
-                    mainFrame.setSize(1000, 800);
+//                    mainFrame.setSize(1000, 800);
+                    mainFrame.pack();
                     mainFrame.setVisible(true);
                     mainFrame.setResizable(false);
                 } catch (Exception e) {
@@ -67,5 +71,22 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
     public void atualizaTab(String[][] board) throws RemoteException {
         this.board = board;
     }
+
+    public void atualizaLog(String log) throws RemoteException {
+        this.log = log;
+        this.newLog = true;
+    }
+    
+        public synchronized boolean getNewLog() {
+        return this.newLog;
+    }
+
+
+    public synchronized String getLogs() {
+        this.newLog = false;
+        return this.log + "\n";
+
+    }
+
 
 }

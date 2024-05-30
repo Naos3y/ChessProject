@@ -67,7 +67,7 @@ public class Piece {
         }
 
         String colorName = (color == 0) ? "White" : "Black";
-        return "Piece{" + "color=" + colorName + ", type=" + typeName + '}'+ colorName + ID;
+        return colorName + typeName;
     }
 
 }

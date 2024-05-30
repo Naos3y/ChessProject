@@ -14,4 +14,5 @@ public interface ClientInterface extends Remote {
    public void recebeMensagem(String msg) throws RemoteException;
    public void validar() throws RemoteException;
    public void atualizaTab(String[][] board) throws RemoteException;
+   public void atualizaLog(String log) throws RemoteException;
 }

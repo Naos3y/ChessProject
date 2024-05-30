@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
 import javax.swing.*;
 
 public class ChessGUI extends JFrame {
@@ -24,28 +23,47 @@ public class ChessGUI extends JFrame {
     private JPanel painelSuperior = new JPanel();
     private JPanel painelDireita = new JPanel();
 
+    /* Auxiliar Panels*/
+    private JPanel userNameP = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JPanel serverIPP = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JPanel serverPortP = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JPanel messageP = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JPanel chatInputs = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JPanel logOutput = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JPanel requests = new JPanel(new GridLayout(2, 1));
+
     private JButton quit = new JButton("Quit");
+
+    /* LABELS */
+    JLabel usernameL = new JLabel("Username: ");
+    JLabel serverIPL = new JLabel("IP: ");
+    JLabel serverPortL = new JLabel("Port: ");
+    JLabel messageL = new JLabel("Message: ");
 
     /* INPUTS PARA CONEXAO*/
     JTextField userName = new JTextField();
     JTextField serverIP = new JTextField();
     JTextField serverPort = new JTextField();
     JButton startCon = new JButton("Join");
-    JButton stopCon = new JButton("Leave");
+    JButton stopCon = new JButton("Leave the room");
 
     /* CHAT*/
-    JPanel chatInputs = new JPanel();
     JTextField inputChat = new JTextField();
     JButton sendMessage = new JButton("send");
     JTextArea textArea = new JTextArea(10, 30);
     JScrollPane chat = new JScrollPane(textArea);
 
+    /* LOGS */
+    JTextArea textAreaLogs = new JTextArea(10, 30);
+    JScrollPane Logs = new JScrollPane(textAreaLogs);
+
     /* PEDIR PARA SER EXPETADOR */
     JButton pedidoDeJogo = new JButton("Request to Play");
 
     /* PEDIR PARA SER JOGADOR */
+    JButton pedidoEspetador = new JButton("Leave the game");
 
- /* Interface */
+    /* Interface */
     public ChessInterface chess;
     public ClientInterface ci;
 
@@ -67,19 +85,21 @@ public class ChessGUI extends JFrame {
     boolean segundaClickFora;
 
     public ChessGUI(ClientInterface ci, Client cliente) {
-
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         atualizaChat t1 = new atualizaChat(cliente);
         verificarJogador t2 = new verificarJogador();
         atualizaTabuleiro t3 = new atualizaTabuleiro(cliente);
+        atualizaLogs t4 = new atualizaLogs(cliente);
         t1.start();
         t2.start();
         t3.start();
+        t4.start();
         this.ci = ci;
 
         setSize(100, 400);
         setLayout(new BorderLayout());
         chessPanel.setLayout(new GridLayout(8, 8));
-        chessPanel.setPreferredSize(new Dimension(500, 500));
+        chessPanel.setPreferredSize(new Dimension(550, 550));
 
         SquarePanel.loadPieceImages();
 
@@ -130,56 +150,83 @@ public class ChessGUI extends JFrame {
         textArea.setEnabled(false);
         stopCon.setEnabled(false);
         pedidoDeJogo.setEnabled(false);
+        pedidoEspetador.setEnabled(false);
 
         painelPrincipal.setLayout(new BorderLayout());
         painelPrincipal.add(chessPanel, BorderLayout.CENTER);
 
         /* Painel do Direita*/
-        painelDireita.setLayout(new GridLayout(2, 1));
-        painelDireita.setBackground(Color.red);
+        painelDireita.setLayout(new BorderLayout());
+        painelDireita.setBackground(Color.LIGHT_GRAY);
         inputChat.setPreferredSize(new Dimension(200, 25));
 
         chatInputs.add(inputChat);
         chatInputs.add(sendMessage);
+        messageP.add(messageL);
+        messageP.add(chatInputs);
         painelDireita.add(chat);
-        painelDireita.add(chatInputs);
+        painelDireita.add(messageP);
 
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setEditable(false);
+        painelDireita.add(chat, BorderLayout.CENTER);
+        painelDireita.add(messageP, BorderLayout.SOUTH);
         painelPrincipal.add(painelDireita, BorderLayout.EAST);
 
         /* Painel das Esquerda*/
-        painelEsquerda.setBackground(Color.pink);
-        painelEsquerda.setLayout(new FlowLayout());
+  painelEsquerda.setLayout(new FlowLayout());
+        painelEsquerda.setBackground(Color.LIGHT_GRAY);
+        painelEsquerda.setPreferredSize(new Dimension(200, 550));
+        
+        // Adicionando painéis do tabuleiro ao painel esquerdo
         for (int i = 8; i < 12; i++) {
             for (int j = 0; j < 8; j++) {
                 SquarePanel sqPanel = new SquarePanel(i, j, this);
-                sqPanel.setBackColor((i + j) % 2);
+                sqPanel.setBackColor((i + j));
                 board[i][j] = sqPanel;
                 painelEsquerda.add(sqPanel);
-
             }
         }
+        
+        // Configurando text area de logs
+        textAreaLogs.setLineWrap(true);
+        textAreaLogs.setWrapStyleWord(true);
+        textAreaLogs.setEditable(false);
+        painelEsquerda.add(Logs);
         painelPrincipal.add(painelEsquerda, BorderLayout.WEST);
 
-        painelEsquerda.setPreferredSize(new Dimension(200, 600));
-
         /* Painel do Inferior*/
-        painelInferior.setBackground(Color.blue);
+        painelInferior.setBackground(Color.LIGHT_GRAY);
         painelPrincipal.add(painelInferior, BorderLayout.SOUTH);
 
         /* Painel Superior*/
-        painelSuperior.setBackground(Color.green);
+        painelSuperior.setBackground(Color.LIGHT_GRAY);
 
         userName.setPreferredSize(new Dimension(200, 25));
         serverIP.setPreferredSize(new Dimension(200, 25));
         serverPort.setPreferredSize(new Dimension(200, 25));
 
-        painelSuperior.add(quit);
-        painelSuperior.add(userName);
-        painelSuperior.add(serverIP);
-        painelSuperior.add(serverPort);
+        // painelSuperior.add(quit);
+        userNameP.add(usernameL);
+        userNameP.add(userName);
+        painelSuperior.add(userNameP);
+
+        serverIPP.add(serverIPL);
+        serverIPP.add(serverIP);
+        painelSuperior.add(serverIPP);
+
+        serverPortP.add(serverPortL);
+        serverPortP.add(serverPort);
+        painelSuperior.add(serverPortP);
+
         painelSuperior.add(startCon);
         painelSuperior.add(stopCon);
-        painelSuperior.add(pedidoDeJogo);
+        requests.add(pedidoEspetador);
+        requests.add(pedidoDeJogo);
+        painelSuperior.add(requests);
+//        painelSuperior.add(pedidoEspetador);
+//        painelSuperior.add(pedidoDeJogo);
         painelPrincipal.add(painelSuperior, BorderLayout.NORTH);
 
         add(painelPrincipal, BorderLayout.CENTER);
@@ -215,9 +262,12 @@ public class ChessGUI extends JFrame {
                                 serverPort.setEnabled(false);
                                 startCon.setEnabled(false);
                                 pedidoDeJogo.setEnabled(true);
+                                pedidoEspetador.setEnabled(false);
 
                                 if (JOGADOR) {
                                     sendMessage.setEnabled(true);
+                                    pedidoEspetador.setEnabled(true);
+
                                 }
                                 textArea.setEnabled(true);
                                 stopCon.setEnabled(true);
@@ -261,6 +311,7 @@ public class ChessGUI extends JFrame {
                     textArea.setEnabled(false);
                     stopCon.setEnabled(false);
                     pedidoDeJogo.setEnabled(false);
+                    pedidoEspetador.setEnabled(false);
 
                 } catch (Exception eLogout) {
                     System.out.println(eLogout + "AAA");
@@ -331,36 +382,38 @@ public class ChessGUI extends JFrame {
 
     }
 
-    public void selectedFora(int x, int y, Piece p) {
-        System.out.println("-------------------------------------");
-        System.out.println("X:" + x + " Y:" + y);
-        System.out.println("ENTRA SELECT FORA");
+    public char numberToLetter(int n) {
+        switch (n) {
+            case 0:
+                return 'a';
+            case 1:
+                return 'b';
 
-        if (JOGADOR) {
-            if (segundaClickFora) {
-                fim[0] = x;
-                fim[1] = y;
-                System.out.println("mouse pressed at:" + x + " : " + y);
-                try {
-                    System.out.println("" + inicio[0] + inicio[1] + fim[0] + fim[1]);
-                    chess.jogada(peca, inicio, fim, false, true);
+            case 2:
+                return 'c';
 
-                } catch (Exception e1) {
+            case 3:
+                return 'd';
 
-                } finally {
-                    segundaClickFora = !segundaClickFora;
+            case 4:
+                return 'e';
 
-                }
-            } else {
-                inicio[0] = x;
-                inicio[1] = y;
-                peca = p.getID();
-                System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
-                segundaClickFora = true;
-            }
+            case 5:
+                return 'f';
+
+            case 6:
+                return 'g';
+
+            case 7:
+                return 'h';
+
+            default:
+                return 'a';
+
         }
-
     }
+
+  
 
     private int stringParaInt(String aMensagem) {
 
@@ -386,6 +439,25 @@ public class ChessGUI extends JFrame {
         }
     }
 
+    public class atualizaLogs extends Thread {
+
+        private Client cliente;
+
+        public atualizaLogs(Client cliente) {
+            this.cliente = cliente;
+        }
+
+        public void run() {
+            while (true) {
+                if (this.cliente.getNewLog()) {
+                    String mensagem = this.cliente.getLogs();
+                    textAreaLogs.append(mensagem);
+                }
+            }
+
+        }
+    }
+
     public class verificarJogador extends Thread {
 
         public verificarJogador() {
@@ -399,6 +471,7 @@ public class ChessGUI extends JFrame {
                     System.out.println(ci);
                     if (JOGADOR) {
                         sendMessage.setEnabled(true);
+                        pedidoEspetador.setEnabled(true);
                     }
                     Thread.sleep(5000);
                 } catch (Exception e1) {
