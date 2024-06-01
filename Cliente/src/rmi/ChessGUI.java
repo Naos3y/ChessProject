@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import javax.swing.*;
 
 public class ChessGUI extends JFrame {
@@ -12,6 +13,8 @@ public class ChessGUI extends JFrame {
     public Client cliente;
     public String myName;
     public boolean JOGADOR = false;
+    public String[] nomesJogadores = {"Player 1", "Player 2"};
+    ArrayList<String> nomes = new ArrayList<>();
 
     private SquarePanel[][] board = new SquarePanel[12][8];
     private SquarePanel[][] player1Square = new SquarePanel[1][1];
@@ -23,15 +26,15 @@ public class ChessGUI extends JFrame {
     private JPanel painelEsquerda = new JPanel();
     private JPanel painelInferior = new JPanel();
     private JPanel painelSuperior = new JPanel();
+    private JPanel painelDireitaMain = new JPanel(new GridLayout(1, 2));
     private JPanel painelDireita = new JPanel();
-
+    private JPanel painelDireitaAuxiliar = new JPanel();
     /* Auxiliar Panels*/
     private JPanel userNameP = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JPanel serverIPP = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JPanel serverPortP = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JPanel messageP = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JPanel chatInputs = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    private JPanel logOutput = new JPanel(new FlowLayout(FlowLayout.LEFT));
     private JPanel requests = new JPanel(new GridLayout(2, 1));
     private JPanel boardOptions = new JPanel(new GridLayout(2, 1));
     private JPanel userOptions = new JPanel(new GridLayout(1, 3));
@@ -41,25 +44,26 @@ public class ChessGUI extends JFrame {
     private JButton quit = new JButton("Quit");
 
     /* LABELS */
-    JLabel usernameL = new JLabel("Username: ");
+    JLabel usernameL = new JLabel("Nome: ");
     JLabel serverIPL = new JLabel("IP: ");
     JLabel serverPortL = new JLabel("Port: ");
-    JLabel messageL = new JLabel("Message: ");
+    JLabel messageL = new JLabel("Mensagem: ");
 
     /* Nomes*/
-    TextArea nomePlayer1 = new TextArea();
-    TextArea nomePlayer2 = new TextArea();
+    JLabel nomePlayer1 = new JLabel("Player 1");
+    JLabel nomePlayer2 = new JLabel("Player 2");
+    JLabel vs = new JLabel("VS");
 
     /* INPUTS PARA CONEXAO*/
     JTextField userName = new JTextField();
     JTextField serverIP = new JTextField();
     JTextField serverPort = new JTextField();
-    JButton startCon = new JButton("Join");
+    JButton startCon = new JButton("Entrar");
     JButton stopCon = new JButton("Logout");
 
     /* CHAT*/
     JTextField inputChat = new JTextField();
-    JButton sendMessage = new JButton("send");
+    JButton sendMessage = new JButton("enviar");
     JTextArea textArea = new JTextArea(10, 30);
     JScrollPane chat = new JScrollPane(textArea);
 
@@ -67,15 +71,22 @@ public class ChessGUI extends JFrame {
     JTextArea textAreaLogs = new JTextArea(10, 30);
     JScrollPane Logs = new JScrollPane(textAreaLogs);
 
+    /* NOME DOS JOGADORES */
+    JTextArea textAreaNames = new JTextArea(10, 30);
+    JScrollPane names = new JScrollPane(textAreaNames);
+
     /* PEDIR PARA SER EXPETADOR */
-    JButton pedidoDeJogo = new JButton("Request to Play");
+    JButton pedidoDeJogo = new JButton("Pedir para jogar");
 
     /* PEDIR PARA SER JOGADOR */
-    JButton pedidoEspetador = new JButton("Leave the game");
+    JButton pedidoEspetador = new JButton("Sair do jogo");
+
+    /* MUDAR DE COR */
+    JButton mudarCor = new JButton("Trocar Lado");
 
     /* ARRUMAR & REMOVER PECAS*/
-    JButton removePecas = new JButton("Clear Board");
-    JButton arrumaPecas = new JButton("Reset Board");
+    JButton removePecas = new JButton("Limpar Tabuleiro");
+    JButton arrumaPecas = new JButton("Resetar Tabuleiro");
 
     /* Interface */
     public ChessInterface chess;
@@ -179,12 +190,15 @@ public class ChessGUI extends JFrame {
         pedidoEspetador.setEnabled(false);
         removePecas.setEnabled(false);
         arrumaPecas.setEnabled(false);
+        mudarCor.setEnabled(false);
 
         painelPrincipal.setLayout(new BorderLayout());
         painelPrincipal.add(chessPanel, BorderLayout.CENTER);
 
         /* Painel do Direita*/
         painelDireita.setLayout(new BorderLayout());
+        painelDireitaAuxiliar.setLayout(new BorderLayout());
+
         painelDireita.setBackground(Color.LIGHT_GRAY);
         inputChat.setPreferredSize(new Dimension(200, 25));
 
@@ -193,14 +207,23 @@ public class ChessGUI extends JFrame {
         messageP.add(messageL);
         messageP.add(chatInputs);
         painelDireita.add(chat);
+        painelDireitaAuxiliar.add(names);
+
         painelDireita.add(messageP);
+        painelDireitaMain.add(painelDireita);
+        painelDireitaMain.add(painelDireitaAuxiliar);
 
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setEditable(false);
+
+        textAreaNames.setLineWrap(true);
+        textAreaNames.setWrapStyleWord(true);
+        textAreaNames.setEditable(false);
+
         painelDireita.add(chat, BorderLayout.CENTER);
         painelDireita.add(messageP, BorderLayout.SOUTH);
-        painelPrincipal.add(painelDireita, BorderLayout.EAST);
+        painelPrincipal.add(painelDireitaMain, BorderLayout.EAST);
 
         /* Painel das Esquerda*/
         painelEsquerda.setLayout(new FlowLayout());
@@ -217,7 +240,6 @@ public class ChessGUI extends JFrame {
             }
         }
 
-        // Configurando text area de logs
         textAreaLogs.setLineWrap(true);
         textAreaLogs.setWrapStyleWord(true);
         textAreaLogs.setEditable(false);
@@ -227,11 +249,19 @@ public class ChessGUI extends JFrame {
         /* Painel do Inferior*/
         painelInferior.setBackground(Color.LIGHT_GRAY);
 
+        nomePlayer1.setFont(new Font("Serif", Font.BOLD, 18));
+        nomePlayer2.setFont(new Font("Serif", Font.BOLD, 18));
+        vs.setFont(new Font("Serif", Font.BOLD, 18));
+        textAreaNames.setFont(new Font("Serif", Font.BOLD, 18));
+        textArea.setFont(new Font("Serif", Font.BOLD, 18));
+
+        userOptions.add(nomePlayer1);
         userOptions.add(player1);
-        userOptions.add(nomePlayer1)
+        userOptions.add(vs);
         userOptions.add(player2);
         userOptions.add(nomePlayer2);
         painelInferior.add(userOptions);
+        painelInferior.add(mudarCor);
         painelPrincipal.add(painelInferior, BorderLayout.SOUTH);
 
         /* Painel Superior*/
@@ -359,7 +389,6 @@ public class ChessGUI extends JFrame {
                     arrumaPecas.setEnabled(false);
 
                 } catch (Exception eLogout) {
-                    System.out.println(eLogout + "AAA");
                 }
             }
         });
@@ -378,7 +407,6 @@ public class ChessGUI extends JFrame {
                 try {
                     chess.sendMessage(myName + ": " + inputChat.getText());
                 } catch (Exception eLogout) {
-                    System.out.println(eLogout);
                 }
             }
         });
@@ -388,7 +416,6 @@ public class ChessGUI extends JFrame {
                 try {
                     chess.expetadorParaJogador(ci);
                 } catch (Exception eExparaJogador) {
-                    System.out.println(eExparaJogador);
                 }
             }
         }
@@ -415,6 +442,41 @@ public class ChessGUI extends JFrame {
         }
         );
 
+        mudarCor.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (nomesJogadores[0].equals("Player 1")) {
+                        chess.trocaPosicao(true);
+                    } else {
+                        chess.trocaPosicao(false);
+
+                    }
+
+                } catch (Exception eExparaJogador) {
+                }
+            }
+        }
+        );
+
+        pedidoEspetador.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    chess.jogadorParaExpetador(ci);
+                    JOGADOR = false;
+                    /* Bloqueia os botoes Leave*/
+
+                    sendMessage.setEnabled(false);
+                    textArea.setEnabled(false);
+                    pedidoDeJogo.setEnabled(true);
+                    removePecas.setEnabled(false);
+                    arrumaPecas.setEnabled(false);
+                } catch (Exception eExparaJogador) {
+                    System.out.println(eExparaJogador);
+                }
+            }
+        }
+        );
+
     }
 
     public void selected(int x, int y, Piece p) {
@@ -422,9 +484,7 @@ public class ChessGUI extends JFrame {
             if (segundaClick) {
                 fim[0] = x;
                 fim[1] = y;
-                System.out.println("mouse pressed at:" + x + " : " + y);
                 try {
-                    System.out.println("" + inicio[0] + inicio[1] + fim[0] + fim[1]);
                     chess.jogada(peca, inicio, fim, false, false);
 
                 } catch (Exception e1) {
@@ -438,7 +498,6 @@ public class ChessGUI extends JFrame {
                     inicio[0] = x;
                     inicio[1] = y;
                     peca = p.getID();
-                    System.out.println("mouse pressed at:" + p.toString() + " at " + x + " : " + y);
                     segundaClick = true;
                 } catch (Exception e2) {
 
@@ -532,7 +591,25 @@ public class ChessGUI extends JFrame {
             while (true) {
                 try {
                     JOGADOR = chess.souJogador(ci);
-                    System.out.println(ci);
+                    nomesJogadores = chess.getPlayers();
+                    nomes = chess.getNames();
+                    nomePlayer1.setText(nomesJogadores[0]);
+                    nomePlayer2.setText(nomesJogadores[1]);
+                    textAreaNames.setText("");
+                    for (int i = 0; i < nomes.size(); i++) {
+                        if (nomes.get(i).equals(nomesJogadores[0]) || nomes.get(i).equals(nomesJogadores[1])) {
+                            textAreaNames.append("Espetador - " + nomes.get(i) + "\n");
+                        } else {
+                            textAreaNames.append("Jogador - " + nomes.get(i) + "\n");
+                        }
+
+                    }
+                    if (nomesJogadores[0].equals("Player 1") || nomesJogadores[1].equals("Player 2") && JOGADOR) {
+                        mudarCor.setEnabled(true);
+                    } else {
+                        mudarCor.setEnabled(false);
+
+                    }
                     if (JOGADOR) {
                         sendMessage.setEnabled(true);
                         pedidoEspetador.setEnabled(true);
@@ -541,7 +618,7 @@ public class ChessGUI extends JFrame {
                         pedidoDeJogo.setEnabled(false);
 
                     }
-                    Thread.sleep(5000);
+                    Thread.sleep(2000);
                 } catch (Exception e1) {
                 }
             }

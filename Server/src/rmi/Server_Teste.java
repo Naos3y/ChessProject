@@ -63,7 +63,6 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             t1.start();
 
         } catch (Exception e) {
-            System.out.println(e);
         }
     }
 
@@ -107,7 +106,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     public synchronized void login(ClientInterface ci, String nome) throws RemoteException {
 
         users.put(ci, nome);
-
+        System.out.println("Entrou jogador " + nome);
         if (jogadores[0] == null) {
             jogadores[0] = ci;
         } else if (jogadores[1] == null) {
@@ -129,20 +128,19 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     public synchronized void logout(ClientInterface ci) throws RemoteException {
 
         Iterator<ClientInterface> iterator = users.keySet().iterator();
+
         while (iterator.hasNext()) {
             ClientInterface key = iterator.next();
-            if (users.get(key).equals(ci)) {
+            if (key.equals(ci)) {
+                System.out.println("Saiu jogador " + users.get(key));
                 iterator.remove();
                 try {
                     for (int j = 0; j < jogadores.length; j++) {
-                        System.out.println(jogadores[j]);
                         if (jogadores[j].equals(ci)) {
                             jogadores[j] = null;
                         }
-                        System.out.println(jogadores[j]);
                     }
                 } catch (Exception e) {
-                    System.out.println(e);
                 }
             }
         }
@@ -154,13 +152,11 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             for (int j = 0; j < board[i].length; j++) {
                 System.out.print(board[i][j] + "\t");
             }
-            System.out.println();
         }
     }
 
     public synchronized void printForaBoard(String[] fora) {
         for (int i = 0; i < fora.length; i++) {
-            System.out.println(fora[i]);
         }
     }
 
@@ -170,6 +166,8 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
         int fimA = fim[0];
         int fimB = fim[1];
         boolean flag = false;
+
+        System.out.println("Jogada: [" + numberToLetter(inicio[0]) + inicio[1] + "] to [" + numberToLetter(fim[0]) + fim[1] + "]");
 
 //        printChessBoard(board);
         if (inicioA == fimA && inicioB == fimB) {
@@ -254,10 +252,8 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
         for (int i = 0; i < jogadores.length; i++) {
             try {
                 jogadores[i].validar();
-                System.out.println("Jogadores online " + jogadores[i]);
             } catch (Exception validarPedido) {
                 jogadores[i] = pedidos.get(0);
-                System.out.println("funciona");
                 pedidos.remove(0);
                 return;
             }
@@ -271,11 +267,9 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             ClientInterface key = iterator.next();
             try {
                 if (users.get(key).equalsIgnoreCase(nome)) {
-                    System.out.println(users.get(key));
                     return false;
                 }
             } catch (Exception e) {
-                System.out.println(e);
                 return false;
             }
 
@@ -285,15 +279,19 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
 
     public synchronized void jogadorParaExpetador(ClientInterface ci) throws RemoteException {
         for (int i = 0; i < jogadores.length; i++) {
-            if (jogadores[i].equals(ci)) {
-                jogadores[i] = null;
-                try {
-                    jogadores[i] = (pedidos.get(0));
-                } catch (Exception e) {
-                    System.out.println(e);
+            try {
+                if (jogadores[i].equals(ci)) {
+                    jogadores[i] = null;
+                    try {
+                        jogadores[i] = (pedidos.get(0));
+                    } catch (Exception e) {
+                        jogadores[i] = null;
+                     }
                 }
+            } catch (Exception e2) {
             }
         }
+
     }
 
     public static String Scan(String aMensagem) {
@@ -361,15 +359,48 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
     }
 
     public String[] getPlayers() throws RemoteException {
+
         Iterator<ClientInterface> iterator = users.keySet().iterator();
+        String[] result = {"Player 1", "Player 2"};
+
         while (iterator.hasNext()) {
             ClientInterface key = iterator.next();
+
             try {
-                key.atualizaTab(board);
+                if (key.equals(jogadores[0])) {
+                    result[0] = users.get(key);
+                } else if (key.equals(jogadores[1])) {
+                    result[1] = users.get(key);
+                }
             } catch (Exception e) {
                 iterator.remove();
             }
 
+        }
+        return result;
+    }
+
+    public ArrayList<String> getNames() throws RemoteException {
+        ArrayList<String> result = new ArrayList<>();
+        Iterator<ClientInterface> iterator = users.keySet().iterator();
+
+        while (iterator.hasNext()) {
+            ClientInterface key = iterator.next();
+
+            try {
+                result.add(users.get(key));
+            } catch (Exception e) {
+            }
+
+        }
+        return result;
+    }
+
+    public void trocaPosicao(boolean flag) throws RemoteException {
+        if (jogadores[0] != null && jogadores[1] != null) {
+            ClientInterface temp = jogadores[0];
+            jogadores[0] = jogadores[1];
+            jogadores[1] = temp;
         }
     }
 
@@ -384,10 +415,8 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
                 try {
                     for (int i = 0; i < jogadores.length; i++) {
                         try {
-                            System.out.println(pedidos.get(0));
                             jogadores[i].validar();
                         } catch (Exception validarPedido) {
-                            System.out.println(pedidos.get(0));
 
                             jogadores[i] = pedidos.get(0);
                             pedidos.remove(0);

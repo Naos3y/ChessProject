@@ -6,6 +6,7 @@ package rmi;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 /**
  *
@@ -34,5 +35,11 @@ public interface ChessInterface extends Remote {
     public void resetBoardCliente() throws RemoteException;
 
     public void clearBoardCliente() throws RemoteException;
+
+    public String[] getPlayers() throws RemoteException;
+
+    public void trocaPosicao(boolean flag) throws RemoteException;
+
+    public ArrayList<String> getNames() throws RemoteException;
 
 }
