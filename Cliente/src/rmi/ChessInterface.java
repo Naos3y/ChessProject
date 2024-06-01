@@ -30,4 +30,9 @@ public interface ChessInterface extends Remote {
     public boolean souJogador(ClientInterface ci) throws RemoteException;
 
     public boolean verificaNome(String nome) throws RemoteException;
+
+    public void resetBoardCliente() throws RemoteException;
+
+    public void clearBoardCliente() throws RemoteException;
+
 }

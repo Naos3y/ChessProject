@@ -87,6 +87,8 @@ public class Client extends UnicastRemoteObject implements ClientInterface {
         return this.log + "\n";
 
     }
+    
+    
 
 
 }
