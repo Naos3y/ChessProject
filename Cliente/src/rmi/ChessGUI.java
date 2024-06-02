@@ -422,6 +422,7 @@ public class ChessGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     chess.sendMessage(myName + ": " + inputChat.getText());
+                    inputChat.setText("");
                 } catch (Exception eLogout) {
                 }
             }
@@ -610,7 +611,7 @@ public class ChessGUI extends JFrame {
                         nomePlayer1.setText(nomesJogadores[0]);
                         nomePlayer2.setText(nomesJogadores[1]);
                     } catch (Exception ej) {
-                        System.out.println(ej);
+                        //System.out.println(ej);
                     }
                 } catch (Exception e1) {
 
@@ -633,7 +634,7 @@ public class ChessGUI extends JFrame {
                         nomes = chess.getNames();
 
                     } catch (Exception nEx) {
-                        System.out.println(nEx);
+                        //System.out.println(nEx);
                     }
                     textAreaNames.setText("");
                     for (int i = 0; i < nomes.size(); i++) {
@@ -644,7 +645,7 @@ public class ChessGUI extends JFrame {
                         }
 
                     }
-                    if (nomesJogadores[0].equals("Player 1") || nomesJogadores[1].equals("Player 2") && JOGADOR) {
+                    if ((nomesJogadores[0].equals("Player 1") && JOGADOR) || (nomesJogadores[1].equals("Player 2") && JOGADOR) || JOGADOR) {
                         mudarCor.setEnabled(true);
                     } else {
                         mudarCor.setEnabled(false);
@@ -660,7 +661,7 @@ public class ChessGUI extends JFrame {
                     }
                     Thread.sleep(1000);
                 } catch (Exception e1) {
-                    System.out.println(e1);
+                    //System.out.println(e1);
                 }
             }
 

@@ -189,7 +189,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
         int fimB = fim[1];
         boolean flag = false;
 
-        System.out.println("Jogada: [" + numberToLetter(inicio[0]) + inicio[1] + "] to [" + numberToLetter(fim[0]) + fim[1] + "]");
+        System.out.println("Jogada: [" + numberToLetter(inicio[0]) + inicio[1] + "] para [" + numberToLetter(fim[0]) + fim[1] + "]");
 
 //        printChessBoard(board);
         if (inicioA == fimA && inicioB == fimB) {
@@ -221,7 +221,8 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             ClientInterface key = iterator.next();
             try {
                 key.atualizaTab(board);
-                key.atualizaLog("- " + users.get(key) + " [" + numberToLetter(fim[0]) + fim[1] + 1 + "] " + peca);
+                key.atualizaLog("- Peça " + peca + " movida para [" + numberToLetter(fim[0]) + (fim[1] + 1) + "]");
+
             } catch (Exception e) {
                 iterator.remove();
             }
@@ -277,9 +278,12 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             } catch (Exception validarPedido) {
                 jogadores[i] = pedidos.get(0);
                 pedidos.remove(0);
+                System.out.println("Entrou novo jogador");
                 return;
             }
         }
+        
+        
 
     }
 
@@ -348,6 +352,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             }
 
         }
+        System.out.println("O tabuleiro foi resetado");
     }
 
     public synchronized void clearBoardCliente() throws RemoteException {
@@ -362,6 +367,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             }
 
         }
+        System.out.println("O tabuleiro foi limpo");
     }
 
     public synchronized String[] getPlayers() throws RemoteException {
@@ -384,7 +390,7 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
             }
 
         }
-        System.out.println(result[0] + "" + result[1]);
+        //System.out.println(result[0] + "" + result[1]);
         return result;
     }
 
@@ -406,14 +412,15 @@ public class Server_Teste extends UnicastRemoteObject implements ChessInterface 
 
     public synchronized void trocaPosicao(boolean flag) throws RemoteException {
         try {
-            System.out.println(jogadores[0] + "-" + jogadores[1]);
+            //System.out.println(jogadores[0] + "-" + jogadores[1]);
 //        if (jogadores[0] != null && jogadores[1] != null) {
+            System.out.println("Jogadores trocaram de posicao");
             ClientInterface temp = jogadores[0];
             jogadores[0] = jogadores[1];
             jogadores[1] = temp;
 //        }
         } catch (Exception e) {
-            System.out.println(e);
+            //System.out.println(e);
         }
     }
 

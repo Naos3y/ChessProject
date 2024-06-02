@@ -77,11 +77,11 @@ public class SquarePanel extends JPanel {
             try {
 
                 cg.selected(row, column, piece);
-                System.out.println("ENTRA TRY");
+                //System.out.println("ENTRA TRY");
                 setBorder(BorderFactory.createLineBorder(Color.RED, 2));
             } catch (Exception e1) {
                 cg.selected(row, column,null);
-                System.out.println("selected at :" + row +" and "+column);
+                //System.out.println("selected at :" + row +" and "+column);
 
                 setBorder(BorderFactory.createLineBorder(Color.RED, 2));
 
